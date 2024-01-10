@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include <signal.h>
 #include <limits.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -32,6 +33,11 @@
 #define USE_STRTOK 0
 #define HIST_FILE	".simple_shell_history"
 #define HIST_MAX	4096
+
+void show_prompt(void);
+char *get_user_input(void);
+char **tokenize_input(char *input);
+int execute_input(char **command, char *envp[]);
 
 extern char **environ;
 
