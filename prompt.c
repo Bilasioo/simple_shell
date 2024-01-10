@@ -1,10 +1,11 @@
-#include "Header.h"
+#include "main.h"
 
 /**
- * main - is the entry point of the code
+ * main - entry point of the code
  * @argc: number of command line arguments.
  * @argv: array of strings containing command line arguments
  * @envp: array of strings containing environment variables
+ *
  * Return: 0
  *
  */

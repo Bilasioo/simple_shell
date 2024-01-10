@@ -1,4 +1,4 @@
-#include "Header.h"
+#include "main.h"
 
 /**
  * tokenize_input - function to tokenize input
@@ -14,7 +14,6 @@ char **tokenize_input(char *input)
 	char *temp = NULL;
 	char **buff;
 	int i = 0, counter = 0;
-
 	if (!input)
 		return (NULL);
 	temp = strdup(input);
@@ -36,7 +35,6 @@ char **tokenize_input(char *input)
 		free(buff);
 		return (NULL);
 	}
-
 	token = strtok(input, " \n\t");
 	while (token != NULL)
 	{
@@ -46,6 +44,4 @@ char **tokenize_input(char *input)
 	}
 	buff[i] = NULL;
 	return (buff);
-
 }
-

@@ -1,47 +1,114 @@
-#include "Header.h"
+#include "main.h"
 
 /**
- * main - main entry point
- * @ac: argument count
- * @av: argument vector
+ * wexit - returns the exit status of child process
+ * @status: termination/exit status of child process
  *
- * Return: 0 on success
- * 	   1 error 
+ * Return: exit status value
  *
  */
 
-int main(int ac, char **av)
+int wexit(int status, input_t *cmd)
 {
-	info_t info[] = { INFO_INIT };
-	int fd = 2;
-
-	asm ("mov %1, %0\n\t"
-		"add $3, %0"
-		: "=r" (fd)
-		: "r" (fd));
-
-	if (ac == 2)
+	if (WIFEXITED(status))
 	{
-		fd = open(av[1], O_RDONLY);
-		if (fd == -1)
-		{
-			if (errno == EACCES)
-				exit(126);
-			if (errno == ENOENT)
-			{
-				_eputs(av[0]);
-				_eputs(": 0: Can't open ");
-				_eputs(av[1]);
-				_eputchar('\n');
-				_eputchar(BUF_FLUSH);
-				exit(127);
-			}
-			return (EXIT_FAILURE);
-		}
-		info->readfd = fd;
+		if (isatty(STDIN_FILENO))
+			return (WEXITSTATUS(status));
+		free_struct(cmd);
+		if (cmd->pathFlag == 0)
+			free(cmd->path);
+		free(cmd);
+		exit(WEXITSTATUS(status));
 	}
-	populate_env_list(info);
-	read_history(info);
-	hsh(info, av);
+	return (WEXITSTATUS(status));
+}
+
+/**
+ * exec_section - implements a simple shell
+ * @cmd: pointer to a struct
+ * @av: program arguments
+ * @num: tracks line number where error occurs
+ *
+ * Return: void
+ *
+ */
+
+int exec_section(input_t *cmd, char **av, int num)
+{
+	pid_t pid1;
+	int i, wstatus;
+	char *snum;
+	if (cmd->path == NULL || cmd->envp == NULL)
+	{
+		if (!isatty(STDIN_FILENO))
+			exit(127);
+		return (127); }
+	pid1 = fork();
+	if (pid1 < 0)
+	{
+		perror("fork");
+		return (2); }
+	if (pid1 > 0)
+	{
+		waitpid(pid1, &wstatus, 0);
+		return (wexit(wstatus, cmd)); }
+		wait(NULL);
+	if (pid1 == 0)
+	{
+		if (execve(cmd->path, cmd->argv, cmd->envp) == -1)
+		{
+			snum = to_strn(num);
+			write(2, av[0], _strlen(av[0]));
+			write(2, ": ", 2);
+			write(2, snum, (_strlen(snum)));
+			write(2, ": ", 2);
+			for (i = 0; cmd->argv[i] != NULL; i++)
+			{
+				write(2, cmd->argv[i], _strlen(cmd->argv[i]));
+				write(2, " ", 1);
+			}
+			write(2, ": not found\n", _strlen(": not found\n"));
+			free(snum);
+			return (2);
+		}
+	}
+	return (0);
+}
+
+/**
+ * main - implements a simple shell
+ * @ac: argument count
+ * @av: arguments array
+ * @envp: environment variables
+ *
+ * Return: exit success
+ *
+ */
+
+int main(int ac, char **av, char **envp)
+{
+	input_t *cmd;
+	int prompt_no = 1;
+	(void)ac;
+	(void)av;
+	while (1)
+	{
+		cmd = get_input(envp);
+		if (cmd == NULL)
+			continue;
+		if (_strncmp(cmd->argv[0], "exit", 4) == 0) _exiting(cmd);
+		if (_strncmp(cmd->argv[0], "env", 3) == 0) _env(cmd, envp);
+		else if (_strncmp(cmd->argv[0], "cd", 2) == 0)
+		{
+			_chdir(cmd);
+		}
+		else
+			exec_section(cmd, av, prompt_no);
+		free_struct(cmd);
+		if (cmd->pathFlag == 0)
+			free(cmd->path);
+		free(cmd);
+		prompt_no++;
+	}
 	return (EXIT_SUCCESS);
 }

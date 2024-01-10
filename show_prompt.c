@@ -1,4 +1,4 @@
-#include "Header.h"
+#include "main.h"
 
 /**
  * show_prompt - function used to show prompts

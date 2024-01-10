@@ -1,4 +1,4 @@
-#include "Header.h"
+#include "main.h"
 
 /**
  * get_user_input - reads user input from std input
