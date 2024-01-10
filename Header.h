@@ -185,7 +185,7 @@ void free_info(info_t *, int);
 /* _getenv.c */
 char **get_environ(info_t *);
 int _unsetenv(info_t *, char *);
-int _setenv(info_t *, char, char *);
+char _setenv(info_t *,char *, char *);
 
 /* _environ.c */
 char *_getenv(info_t *, const char *);
@@ -205,8 +205,8 @@ void free_list(list_t **);
 size_t list_len(const list_t *);
 char **list_to_strings(list_t *);
 size_t print_list(const list_t *);
-list_t *node_starts_with(list_t *, char, char *);
-ssize_t get_node_index(list_t, list_t *,);
+list_t node_starts_with(list_t *, char *);
+ssize_t get_node_index(list_t, list_t *);
 
 /* exits.c */
 char *_strncpy(char *, char *, int);

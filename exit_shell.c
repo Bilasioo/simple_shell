@@ -1,4 +1,4 @@
-i#include "Header.h"
+#include "Header.h"
 
 /**
  **_strncpy - functions that copies a string
